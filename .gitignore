@@ -1,0 +1,59 @@
+# Ignore the virtual environment directory
+myenv/
+venv/
+env/
+
+# Ignore Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ignore environment variables file
+.env
+.env.*
+
+# Ignore IDE-specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore SQLite databases (if you use them for testing)
+*.sqlite3
+
+# Ignore Flask debug log
+flask.log
+
+# Ignore pipenv files
+Pipfile
+Pipfile.lock
+
+# Ignore pytest cache
+.pytest_cache/
+
+# Ignore coverage reports
+.coverage
+htmlcov/
+
+# Ignore macOS-specific files
+.DS_Store
+
+# Ignore Windows-specific files
+Thumbs.db
+
+# Ignore compiled Python files
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore logs and local settings
+logs/
+*.log
+local_settings.py
+
+# Ignore static and upload directories (if applicable)
+/static/uploads/
+/static/files/
+
+# Ignore Flask secret key file
+instance/
