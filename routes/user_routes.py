@@ -19,7 +19,7 @@ def create_user():
 def get_users():
     users = User.query.all()
     if users is None:
-        return render_json("Users not found", 404, "success", None)
+        return render_json("Users not found", 404, "error", None)
         
     return render_json("Retrieved list of users", 200, "success", [{'id': user.id, 'username': user.username, 'email': user.email} for user in users])
 
@@ -28,7 +28,7 @@ def get_users():
 def get_user(user_id):
     user = User.query.get(user_id)
     if user is None:
-        return render_json("Users not found", 404, "success", None)
+        return render_json("Users not found", 404, "error", None)
     
     return render_json("Retrieved one user", 200, "success", {'id': user.id, 'username': user.username, 'email': user.email})
 
@@ -37,7 +37,7 @@ def get_user(user_id):
 def update_user(user_id):
     user = User.query.get(user_id)
     if user is None:
-        return render_json("Users not found", 404, "success", None)
+        return render_json("Users not found", 404, "error", None)
 
     data = request.get_json()
     user.username = data.get('username', user.username)
@@ -51,7 +51,7 @@ def update_user(user_id):
 def delete_user(user_id):
     user = User.query.get(user_id)
     if user is None:
-        return render_json("Users not found", 404, "success", None)
+        return render_json("Users not found", 404, "error", None)
     
     db.session.delete(user)
     db.session.commit()
