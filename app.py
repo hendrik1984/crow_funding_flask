@@ -1,68 +1,34 @@
-from flask import Flask, request, jsonify
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required
-# import os
+from flask_jwt_extended import JWTManager
+from flask_cors import CORS
+from config import Config
+from models import db # Import db from models/__init__.py
 
 app = Flask(__name__)
 
-# Configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin123:admin123@localhost/crow_funding_flask'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-# app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'supersecretkey')
+def create_app():
+    app = Flask(__name__)
+    CORS(app)
 
-# Initialize Extensions
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-jwt = JWTManager(app)
+    # Load config
+    app.config.from_object('config.Config')
 
-#user Model
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
+    # Initial Extensions
+    db.init_app(app)
+    Migrate(app, db)
+    JWTManager(app)
 
+    # Import models to ensure they are registered with SQLAlchemy
+    from models.user import User
 
-# Create User
-@app.route('/users', methods=['POST'])
-def create_user():
-    data = request.get_json()
-    new_user = User(username=data['username'], email=data['email'], password_hash=data['password'])
-    db.session.add(new_user)
-    db.session.commit()
-    return jsonify({'message': 'User created successfully'}), 201
+    # Register Blueprints
+    from routes.user_routes import user_bp
+    app.register_blueprint(user_bp, url_prefix="/users")
 
-# Get All Users
-@app.route('/users', methods=['GET'])
-def get_users():
-    users = User.query.all()
-    return jsonify([{'id': user.id, 'username': user.username, 'email': user.email} for user in users])
-
-# Get Single User
-@app.route('/users/<int:user_id>', methods=['GET'])
-def get_user(user_id):
-    user = User.query.get_or_404(user_id)
-    return jsonify({'id': user.id, 'username': user.username, 'email': user.email})
-
-# Update User
-@app.route('/users/<int:user_id>', methods=['PUT'])
-def update_user(user_id):
-    user = User.query.get_or_404(user_id)
-    data = request.get_json()
-    user.username = data.get('username', user.username)
-    user.email = data.get('email', user.email)
-    user.password_hash = data.get('password', user.password_hash)
-    db.session.commit()
-    return jsonify({'message': 'User updated successfully'})
-
-# Delete User
-@app.route('/users/<int:user_id>', methods=['DELETE'])
-def delete_user(user_id):
-    user = User.query.get_or_404(user_id)
-    db.session.delete(user)
-    db.session.commit()
-    return jsonify({'message': 'User deleted successfully'})
+    return app
 
 if __name__ == '__main__':
+    app = create_app()
     app.run(debug=True)
